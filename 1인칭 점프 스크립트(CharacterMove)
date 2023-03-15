@@ -1,0 +1,29 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CharacterMove : MonoBehaviour
+{
+    public float speed = 10.0F;//움직이는 속도 제어
+    public float jumpSpeed = 8.0F;//점프 시 높이
+    public float gravity = 20.0F;//점프 후 착지속도
+    private Vector3 moveDirection = Vector3.zero; //움직이는 방향 = 3차원 xyz
+
+    // Update is called once per frame
+    void Update()
+    {
+        CharacterController controller = GetComponent<CharacterController>();//오브젝트 컴포넌트 속성값 변경
+        if (controller.isGrounded)//오브젝트가 바닥에 고정되어있는지 확인. 바닥에 고정된 상태에서만 모션이 가능
+        {
+            float x = Input.GetAxis("Horizontal");//좌우
+            float z = Input.GetAxis("Vertical");//상하
+            moveDirection = new Vector3(x, 0, z);//가로세로 x축 z축
+            moveDirection = transform.TransformDirection(moveDirection);//지역공간좌표값 -->월드 공간 좌표값 (오브젝트 시선 방향에 따라 다르게 움직이는 행위 방지)
+            moveDirection *= speed;//움직임 속도 결정
+            if (Input.GetButton("Jump"))//스페이스바
+                moveDirection.y = jumpSpeed;
+        }
+        moveDirection.y-=gravity*Time.deltaTime;//(중력 * 델타타임) - y축 좌표값 -->점프 후 자연스러운 착지 
+        controller.Move(moveDirection*Time.deltaTime);//Move()메서드로 캐릭터 이동
+    }
+}
